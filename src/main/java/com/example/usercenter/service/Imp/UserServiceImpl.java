@@ -121,6 +121,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safetyUser.setEmail(user.getEmail());
         safetyUser.setUserStatus(user.getUserStatus());
         safetyUser.setCreateTime(user.getCreateTime());
+        safetyUser.setRole(user.getRole());
         // 4.记录用户登录状态
         request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
         return safetyUser;

@@ -58,7 +58,7 @@ public class UserController {
         }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(username)){
-            queryWrapper.like("user_name",username);
+            queryWrapper.like("username",username);
         }
         return userService.list(queryWrapper);
     }
