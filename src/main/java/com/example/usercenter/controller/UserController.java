@@ -60,7 +60,11 @@ public class UserController {
         if (StringUtils.isNotBlank(username)){
             queryWrapper.like("username",username);
         }
-        return userService.list(queryWrapper);
+        List<User> userList = userService.list(queryWrapper);
+        return userList.stream().map(user -> {
+            user.setUserPassword(null);
+            return user;
+        }).toList();
     }
 
     @PostMapping("/delete")
