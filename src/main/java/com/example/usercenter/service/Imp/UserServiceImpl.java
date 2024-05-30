@@ -2,6 +2,7 @@ package com.example.usercenter.service.Imp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.usercenter.contant.UserContant;
 import com.example.usercenter.model.domain.User;
 import com.example.usercenter.mapper.UserMapper;
 import com.example.usercenter.service.UserService;
@@ -15,6 +16,9 @@ import org.springframework.util.DigestUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.example.usercenter.contant.UserContant.USER_LOGIN_STATE;
+
 /**
 * @author 25006
 * @description 针对表【user(用户表)】的数据库操作Service实现
@@ -33,10 +37,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     private static final String SALT = "lyy";
 
-    /**
-     * 用户登录状态
-     */
-    private static final String USER_LOGIN_STATE="userLoginState";
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {

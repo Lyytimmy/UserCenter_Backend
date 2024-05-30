@@ -2,6 +2,7 @@ package com.example.usercenter.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.usercenter.contant.UserContant;
 import com.example.usercenter.model.domain.User;
 import com.example.usercenter.model.request.UserLoginRequest;
 import com.example.usercenter.model.request.UserRegisterRequest;
@@ -9,10 +10,13 @@ import com.example.usercenter.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+
+import static com.example.usercenter.contant.UserContant.ADMIN_ROLE;
+import static com.example.usercenter.contant.UserContant.USER_LOGIN_STATE;
 
 @RestController
 @RequestMapping("/user")
@@ -48,8 +52,11 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public List<User> searchUsers(String username){
-        QueryWrapper<User> queryWrapper = new QueryWrapper<User>();
+    public List<User> searchUsers(String username, HttpServletRequest request){
+        if (!isAdmin(request)){
+            return Collections.emptyList();
+        }
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(username)){
             queryWrapper.like("user_name",username);
         }
@@ -57,10 +64,25 @@ public class UserController {
     }
 
     @PostMapping("/delete")
-    public boolean deleteUser(@RequestBody long id){
+    public boolean deleteUser(@RequestBody long id, HttpServletRequest request){
+        if (!isAdmin(request)){
+            return false;
+        }
         if (id <= 0){
             return false;
         }
         return userService.removeById(id);
+    }
+
+    /**
+     * 是否为管理员
+     * @param request 请求
+     * @return 是否为管理员
+     */
+    private boolean isAdmin(HttpServletRequest request){
+        // 鉴权
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User user = (User) userObj;
+        return user != null && user.getRole() == ADMIN_ROLE;
     }
 }
