@@ -55,4 +55,12 @@ public class UserController {
         }
         return userService.list(queryWrapper);
     }
+
+    @PostMapping("/delete")
+    public boolean deleteUser(@RequestBody long id){
+        if (id <= 0){
+            return false;
+        }
+        return userService.removeById(id);
+    }
 }
