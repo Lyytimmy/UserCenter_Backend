@@ -1,6 +1,7 @@
 package com.example.usercenter.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.usercenter.model.domain.User;
 import com.example.usercenter.model.request.UserLoginRequest;
 import com.example.usercenter.model.request.UserRegisterRequest;
@@ -9,10 +10,9 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -47,4 +47,12 @@ public class UserController {
         return userService.doLogin(userAccount,userPassword,request);
     }
 
+    @GetMapping("/search")
+    public List<User> searchUsers(String username){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<User>();
+        if (StringUtils.isNotBlank(username)){
+            queryWrapper.like("user_name",username);
+        }
+        return userService.list(queryWrapper);
+    }
 }
