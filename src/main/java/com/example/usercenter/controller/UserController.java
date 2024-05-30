@@ -2,11 +2,13 @@ package com.example.usercenter.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.usercenter.common.BaseResponse;
 import com.example.usercenter.contant.UserContant;
 import com.example.usercenter.model.domain.User;
 import com.example.usercenter.model.request.UserLoginRequest;
 import com.example.usercenter.model.request.UserRegisterRequest;
 import com.example.usercenter.service.UserService;
+import com.example.usercenter.utils.ResultUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +27,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public Long userRegister(@RequestBody UserRegisterRequest userRegisterRequest){
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest){
         if (userRegisterRequest==null){
             return null;
         }
@@ -35,11 +37,12 @@ public class UserController {
         if (StringUtils.isAnyBlank(userAccount,userPassword,checkPassword)){
             return null;
         }
-        return userService.userRegister(userAccount,userPassword,checkPassword);
+        long res = userService.userRegister(userAccount,userPassword,checkPassword);
+        return ResultUtils.success(res);
     }
 
     @PostMapping("/login")
-    public User userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request){
+    public BaseResponse<User> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request){
         if (userLoginRequest==null){
             return null;
         }
@@ -48,39 +51,43 @@ public class UserController {
         if (StringUtils.isAnyBlank(userAccount,userPassword)){
             return null;
         }
-        return userService.doLogin(userAccount,userPassword,request);
+        User res = userService.doLogin(userAccount,userPassword,request);
+        return ResultUtils.success(res);
     }
 
     @PostMapping("/logout")
-    public Integer userLogout(HttpServletRequest request){
+    public BaseResponse<Integer> userLogout(HttpServletRequest request){
         if (request==null){
             return null;
         }
-        return userService.userLogout(request);
+        int res =  userService.userLogout(request);
+        return ResultUtils.success(res);
     }
 
     @GetMapping("/search")
-    public List<User> searchUsers(String username, HttpServletRequest request){
+    public BaseResponse<List<User>> searchUsers(String username, HttpServletRequest request){
         if (!isAdmin(request)){
-            return Collections.emptyList();
+            return null;
         }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(username)){
             queryWrapper.like("username",username);
         }
         List<User> userList = userService.list(queryWrapper);
-        return userList.stream().map(user -> userService.getSafetyUser(user)).toList();
+        List<User> res = userList.stream().map(user -> userService.getSafetyUser(user)).toList();
+        return ResultUtils.success(res);
     }
 
     @PostMapping("/delete")
-    public boolean deleteUser(@RequestBody long id, HttpServletRequest request){
+    public BaseResponse<Boolean> deleteUser(@RequestBody long id, HttpServletRequest request){
         if (!isAdmin(request)){
-            return false;
+            return null;
         }
         if (id <= 0){
-            return false;
+            return null;
         }
-        return userService.removeById(id);
+        Boolean res = userService.removeById(id);
+        return ResultUtils.success(res);
     }
 
     /**
