@@ -37,4 +37,9 @@ public interface UserService extends IService<User> {
      * @return 脱敏后信息
      */
     User getSafetyUser(User originuser);
+
+    /**
+     * 用户注销
+     */
+    int userLogout(HttpServletRequest request);
 }
