@@ -55,17 +55,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Matcher matcher = pattern.matcher(userAccount);
         //匹配上的时候返回true,匹配不通过返回false
         if (!matcher.matches()){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号包含特殊字符");
         }
         if(!userPassword.equals(checkPassword)){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"两次密码不一致");
         }
         // 账户不能重复
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         long count = this.count(queryWrapper);
         if(count > 0){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账户已注册");
         }
         // 2.密码加密
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT+userPassword).getBytes());
@@ -75,7 +75,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setUserPassword(encryptPassword);
         boolean saveResult = this.save(user);
         if (!saveResult){
-            return -1;
+            throw new BusinessException(ErrorCode.NULL_ERROR,"插入数据库失败");
         }
         return user.getId();
     }
@@ -84,20 +84,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public User doLogin(String userAccount, String userPassword, HttpServletRequest request) {
         // 1. 校验
         if(StringUtils.isAnyBlank(userAccount, userPassword)){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
         }
         if(userAccount.length()<4){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号小于四位");
         }
         if (userPassword.length()<8){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"用户密码小于八位");
         }
         // 校验账户不能包含特殊字符
         Pattern pattern=Pattern.compile("^[a-zA-Z0-9_]+$");
         Matcher matcher = pattern.matcher(userAccount);
         //匹配上的时候返回true,匹配不通过返回false
         if (!matcher.matches()){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号包含特殊字符");
         }
         // 2.校验用户是否存在
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT+userPassword).getBytes());
@@ -107,7 +107,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = userMapper.selectOne(queryWrapper);
         if(user == null){
             log.info("user login failed,userAccount cannot match userPassword");
-            return null;
+            throw new BusinessException(ErrorCode.NULL_ERROR,"为查询到用户");
         }
         // 3.用户信息脱敏
         User safetyUser = getSafetyUser(user);

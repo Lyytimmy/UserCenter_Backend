@@ -1,10 +1,12 @@
 package com.example.usercenter.common;
 
 import lombok.Data;
+import lombok.Getter;
 
 /**
  * 错误码
  */
+@Getter
 public enum ErrorCode {
     SUCCESS(0, "成功", ""),
     PARAMS_ERROR(40000, "参数错误", ""),
@@ -23,15 +25,4 @@ public enum ErrorCode {
         this.desciption = desciption;
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public String getDesciption() {
-        return desciption;
-    }
 }

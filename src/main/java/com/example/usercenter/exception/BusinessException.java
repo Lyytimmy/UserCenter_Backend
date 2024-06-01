@@ -1,11 +1,18 @@
 package com.example.usercenter.exception;
 
 import com.example.usercenter.common.ErrorCode;
+import lombok.Getter;
+
+import java.io.Serial;
 
 /**
  * 自定义异常类
  */
+@Getter
 public class BusinessException extends RuntimeException{
+    @Serial
+    private static final long serialVersionUID = 631504623619249781L;
+
     private final int code;
     private final String description;
 
@@ -27,11 +34,4 @@ public class BusinessException extends RuntimeException{
         this.description = description;
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 }

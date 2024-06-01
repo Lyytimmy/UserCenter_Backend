@@ -14,15 +14,15 @@ public class ResultUtils {
     }
 
     // 失败
-    public static BaseResponse error(ErrorCode errorCode){
+    public static <T> BaseResponse<T> error(ErrorCode errorCode){
         return new BaseResponse<>(errorCode.getCode(),errorCode.getMessage(),errorCode.getDesciption(),null);
     }
 
-    public static BaseResponse error(int code, String message,String description){
+    public static <T> BaseResponse<T> error(int code, String message,String description){
         return new BaseResponse<>(code,message,description,null);
     }
 
-    public static BaseResponse error(ErrorCode errorCode, String message,String description){
+    public static <T> BaseResponse<T> error(ErrorCode errorCode, String message,String description){
         return new BaseResponse<>(errorCode.getCode(),message,description,null);
     }
 }
