@@ -2,6 +2,8 @@ package com.example.usercenter.service.Imp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.usercenter.common.ErrorCode;
+import com.example.usercenter.exception.BusinessException;
 import com.example.usercenter.model.domain.User;
 import com.example.usercenter.mapper.UserMapper;
 import com.example.usercenter.service.UserService;
@@ -39,15 +41,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
         // 1. 校验
-        // todo 修改自定义异常
         if(StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
         }
         if(userAccount.length()<4){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号小于四位");
         }
         if (userPassword.length()<8 || checkPassword.length()<8){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"用户密码小于八位");
         }
         // 校验账户不能包含特殊字符
         Pattern pattern=Pattern.compile("^[a-zA-Z0-9_]+$");
