@@ -1,8 +1,11 @@
 package com.example.usercenter.service;
 
+import com.example.usercenter.model.domain.Tag;
 import com.example.usercenter.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
 
 /**
 * @author 25006
@@ -42,4 +45,12 @@ public interface UserService extends IService<User> {
      * 用户注销
      */
     int userLogout(HttpServletRequest request);
+
+    /**
+     * 根据tags搜索用户-and模式
+     *
+     * @param tagList
+     * @return
+     */
+    List<User> serchUserByTags(List<String> tagList);
 }
