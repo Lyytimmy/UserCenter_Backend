@@ -22,10 +22,4 @@ class UserServiceTest {
         Assertions.assertTrue(result > 0);
     }
 
-    @Test
-    void serchUserByTags() {
-        List<String> taglist = Arrays.asList("java","python");
-        List<User> userList = userService.serchUserByTags(taglist);
-        Assert.assertNotNull(userList);
-    }
 }

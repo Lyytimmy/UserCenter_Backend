@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -146,19 +148,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return 1;
     }
 
+
     @Override
     public List<User> serchUserByTags(List<String> tagList) {
         if(CollectionUtils.isEmpty(tagList)){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // 在mysql中查询
-//        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-//        for (String tagName:tagList){
-//            queryWrapper = queryWrapper.like("tags",tagName);
-//        }
-//        List<User> userList = userMapper.selectList(queryWrapper);
-
-        // 在内存中查询
         // 先查所有用户
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         List<User> userList = userMapper.selectList(queryWrapper);
@@ -166,10 +161,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 在内存中判断是否包含要求的标签
         return userList.stream().filter(user->{
             String tagsStr = user.getTags();
-            if (StringUtils.isBlank(tagsStr)){
-                return false;
-            }
+//            if (StringUtils.isBlank(tagsStr)){
+//                return false;
+//            }
             Set<String> tempTagNameSet = gson.fromJson(tagsStr, new TypeToken<Set<String>>(){}.getType());
+            // Optional.ofNullable对tempTagNameSet进行判空，如果为空返回一个空的set
+            tempTagNameSet = Optional.ofNullable(tempTagNameSet).orElse(new HashSet<>());
             for (String tagName : tagList) {
                 if (!tempTagNameSet.contains(tagName)){
                     return false;
@@ -177,8 +174,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             }
             return true;
         }).map(this::getSafetyUser).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<User> serchUserByTagsBySql(List<String> tagList) {
+        if(CollectionUtils.isEmpty(tagList)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        for (String tagName:tagList){
+            queryWrapper = queryWrapper.like("tags",tagName);
+        }
+        List<User> userList = userMapper.selectList(queryWrapper);
         // 脱敏
-        // return userList.stream().map(this::getSafetyUser).collect(Collectors.toList());
+        return userList.stream().map(this::getSafetyUser).collect(Collectors.toList());
     }
 }
 

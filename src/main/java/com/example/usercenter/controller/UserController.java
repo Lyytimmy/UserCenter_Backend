@@ -14,8 +14,10 @@ import com.example.usercenter.utils.ResultUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -102,5 +104,14 @@ public class UserController {
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userObj;
         return user != null && user.getRole() == ADMIN_ROLE;
+    }
+
+    @GetMapping("/search/tags")
+    public  BaseResponse<List<User>> serUsersByTags(List<String> tagNameList){
+        if (CollectionUtils.isEmpty(tagNameList)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<User> userList = userService.serchUserByTags(tagNameList);
+        return ResultUtils.success(userList);
     }
 }
