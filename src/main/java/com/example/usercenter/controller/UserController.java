@@ -10,6 +10,7 @@ import com.example.usercenter.model.domain.User;
 import com.example.usercenter.model.request.UserLoginRequest;
 import com.example.usercenter.model.request.UserRegisterRequest;
 import com.example.usercenter.service.UserService;
+import com.example.usercenter.utils.ObjectUtils;
 import com.example.usercenter.utils.ResultUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -111,6 +113,10 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
+        // 检查是否除了id和serialVersionUID之外的字段都为空
+        if (ObjectUtils.objectCheckIsNull(user, Arrays.asList("id","serialVersionUID"))){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
         int res = userService.updateUser(user, loginUser);
         return ResultUtils.success(res);
     }
