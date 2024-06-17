@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.usercenter.common.ErrorCode;
 import com.example.usercenter.exception.BusinessException;
-import com.example.usercenter.model.domain.Tag;
 import com.example.usercenter.model.domain.User;
 import com.example.usercenter.mapper.UserMapper;
 import com.example.usercenter.service.UserService;
@@ -26,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.example.usercenter.contant.UserContant.ADMIN_ROLE;
 import static com.example.usercenter.contant.UserContant.USER_LOGIN_STATE;
 
 /**
@@ -188,6 +188,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<User> userList = userMapper.selectList(queryWrapper);
         // 脱敏
         return userList.stream().map(this::getSafetyUser).collect(Collectors.toList());
+    }
+
+    @Override
+    public int updateUser(User user, User loginUser) {
+        long userId = user.getId();
+        if (userId <= 0){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 管理员可以改所有人的，非管理员只能改自己的
+        if (!isAdmin(loginUser) && userId != loginUser.getId()){
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+        User oldUser = userMapper.selectById(userId);
+        if (oldUser == null){
+            throw new BusinessException(ErrorCode.NULL_ERROR);
+        }
+        return userMapper.updateById(user);
+    }
+
+    @Override
+    public User getLoginUser(HttpServletRequest request) {
+        if (request==null){
+            return null;
+        }
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        if (userObj==null){
+            throw new BusinessException(ErrorCode.NO_AUTH,"用户未登录");
+        }
+        return (User) userObj;
+    }
+
+    @Override
+    public boolean isAdmin(HttpServletRequest request){
+        // 鉴权
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User user = (User) userObj;
+        return user != null && user.getRole() == ADMIN_ROLE;
+    }
+
+    @Override
+    public boolean isAdmin(User loginUser){
+        return loginUser != null && loginUser.getRole() == ADMIN_ROLE;
     }
 }
 

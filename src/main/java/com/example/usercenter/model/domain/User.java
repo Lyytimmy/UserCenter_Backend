@@ -17,7 +17,7 @@ public class User implements Serializable {
      * 主键
      */
     @TableId
-    private Long id;
+    private long id;
 
     /**
      * 登录账户

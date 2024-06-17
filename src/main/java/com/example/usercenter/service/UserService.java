@@ -7,6 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
+import static com.example.usercenter.contant.UserContant.ADMIN_ROLE;
+import static com.example.usercenter.contant.UserContant.USER_LOGIN_STATE;
+
 /**
 * @author 25006
 * @description 针对表【user(用户表)】的数据库操作Service
@@ -61,5 +64,25 @@ public interface UserService extends IService<User> {
      */
     List<User> serchUserByTagsBySql(List<String> tagList);
 
+    /**
+     * 更新用户信息
+     * @param user
+     * @return
+     */
+    int updateUser(User user, User loginUser);
 
+    /**
+     * 获取当前用户信息
+     * @return
+     */
+    User getLoginUser(HttpServletRequest request);
+
+    /**
+     * 是否为管理员
+     * @param request 请求
+     * @return 是否为管理员
+     */
+    boolean isAdmin(HttpServletRequest request);
+
+    boolean isAdmin(User loginUser);
 }
