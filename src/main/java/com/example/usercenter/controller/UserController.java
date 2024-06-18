@@ -2,6 +2,7 @@ package com.example.usercenter.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.usercenter.common.BaseResponse;
 import com.example.usercenter.common.ErrorCode;
 import com.example.usercenter.contant.UserContant;
@@ -14,7 +15,10 @@ import com.example.usercenter.utils.ObjectUtils;
 import com.example.usercenter.utils.ResultUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,15 +26,19 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.example.usercenter.contant.UserContant.ADMIN_ROLE;
 import static com.example.usercenter.contant.UserContant.USER_LOGIN_STATE;
 
 @RestController
+@Slf4j
 @RequestMapping("/user")
 public class UserController {
     @Resource
     private UserService userService;
+    @Resource
+    private RedisTemplate redisTemplate;
 
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest){
@@ -104,6 +112,28 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         List<User> userList = userService.serchUserByTags(tagNameList);
+        return ResultUtils.success(userList);
+    }
+
+    @GetMapping("/recommend")
+    public BaseResponse<Page<User>> recommendUsers(long pageSize, long pageNum, HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        // redisKey格式 usercenter:user:recommend:userId
+        String redisKey = String.format("usercenter:user:recommend:%s",loginUser.getId());
+        ValueOperations<String, Page<User>> operations = redisTemplate.opsForValue();
+        Page<User> userList = operations.get(redisKey);
+        // 判断是否有缓存，有的话直接用缓存
+        if (userList!=null){
+            return ResultUtils.success(userList);
+        }
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        userList = userService.page(new Page<>(pageNum,pageSize), queryWrapper);
+        // 写缓存
+        try {
+            operations.set(redisKey,userList,24, TimeUnit.HOURS);
+        } catch (Exception e){
+            log.error("redis set key error",e);
+        }
         return ResultUtils.success(userList);
     }
 
