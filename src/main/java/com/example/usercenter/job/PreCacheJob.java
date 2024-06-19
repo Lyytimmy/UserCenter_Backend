@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,7 +47,9 @@ public class PreCacheJob {
             String redisKey = String.format("usercenter:user:recommend:%s",userId);
             ValueOperations<String,Object> operations = redisTemplate.opsForValue();
             try {
-                operations.set(redisKey,userList,24, TimeUnit.HOURS);
+                // 随机设置过期时间防止缓存雪崩
+                Random rand = new Random();
+                operations.set(redisKey,userList,rand.nextInt(5) + 5, TimeUnit.MINUTES);
             } catch (Exception e){
                 log.error("redis set key error",e);
             }
