@@ -2,6 +2,7 @@ package com.example.usercenter.service;
 
 import com.example.usercenter.model.domain.Team;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.usercenter.model.domain.User;
 
 /**
 * @author 25006
@@ -10,4 +11,18 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface TeamService extends IService<Team> {
 
+    /**
+     * 队伍信息脱敏
+     * @param originteam
+     * @return
+     */
+    Team getSafetyTeam(Team originteam);
+
+    /**
+     * 创建队伍
+     * @param team
+     * @param loginUser
+     * @return
+     */
+    long addTeam(Team team, User loginUser);
 }
