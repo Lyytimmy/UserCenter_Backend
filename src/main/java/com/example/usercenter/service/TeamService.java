@@ -3,6 +3,11 @@ package com.example.usercenter.service;
 import com.example.usercenter.model.domain.Team;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.usercenter.model.domain.User;
+import com.example.usercenter.model.dto.TeamQuery;
+import com.example.usercenter.model.request.TeamUpdateRequest;
+import com.example.usercenter.model.vo.TeamUserVO;
+
+import java.util.List;
 
 /**
 * @author 25006
@@ -25,4 +30,22 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     long addTeam(Team team, User loginUser);
+
+    /**
+     * 查询队伍信息
+     * @param teamQuery
+     * @param isAdmin
+     * @return
+     */
+    List<TeamUserVO> listTeams(TeamQuery teamQuery, boolean isAdmin);
+
+    /**
+     * 更新队伍
+     *
+     * @param teamUpdateRequest
+     * @param loginUser
+     * @return
+     */
+    boolean updateTeam(TeamUpdateRequest teamUpdateRequest, User loginUser);
+
 }
