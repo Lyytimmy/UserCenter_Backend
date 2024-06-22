@@ -19,6 +19,9 @@ import com.example.usercenter.service.TeamService;
 import com.example.usercenter.mapper.TeamMapper;
 import com.example.usercenter.service.UserService;
 import com.example.usercenter.service.UserTeamService;
+import com.example.usercenter.utils.AlgorithmUtils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
@@ -30,6 +33,7 @@ import org.springframework.util.DigestUtils;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.example.usercenter.contant.SystemContant.SALT;
 
@@ -397,6 +401,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         // 删除队伍
         return this.removeById(teamId);
     }
+
 
     /**
      * 根据 id 获取队伍信息
